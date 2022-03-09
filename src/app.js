@@ -2,6 +2,10 @@ const express = require('express');
 
 const app = express();
 
+const morgan = require('morgan');
+
+app.use(morgan('common'));
+
 app.use(express.json());
 
 app.use((error, req, res, next) => {

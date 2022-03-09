@@ -1,0 +1,11 @@
+{
+  "name": "tokoreando-backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "https://github.com/GarconeAna/tokoreando-backend.git",
+  "author": "<Ana Carolina>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
+}

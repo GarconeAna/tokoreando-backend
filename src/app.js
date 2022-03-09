@@ -1,8 +1,17 @@
 const express = require('express');
 
+const morgan = require('morgan');
+
+const cors = require('cors');
+const { append } = require('express/lib/response');
+
 const app = express();
 
-const morgan = require('morgan');
+app.use(
+    cors({
+        origin: "http://localhost:3000"
+    })
+)
 
 app.use(morgan('common'));
 

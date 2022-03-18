@@ -2,10 +2,26 @@ const express = require('express');
 
 const morgan = require('morgan');
 
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+const app = express();
+
+const User = require('./model/User');
+// const Tweet = require('./model/tweet.model');
+
+
+
 const cors = require('cors');
 const { append } = require('express/lib/response');
 
-const app = express();
+
+mongoose
+.connect(process.env.DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true})
+.then(() => console.log("Database connected!"))
+.catch(err => console.log(err));
 
 app.use(
     cors({
@@ -30,6 +46,37 @@ app.use((error, req, res, next) => {
 app.get('/', (req, res) => {
     res.send('Helloooooo!!!!!');
 });
+
+app.post("/register", async (req, res, next) => {
+    try {
+        const { username, password } = req.body;
+
+        console.log(username);
+        console.log(password);
+        
+        const userExists = await User.findOne({ username });
+
+        console.log(userExists);
+
+        if (userExists) return res.status(400).send({error:"Username already in use."});
+
+        const user = await User.create({
+            username,
+            password
+        })
+
+        console.log(user);
+
+        res.status(201).send({
+            id: user.id,
+            username: user.username
+        });
+    } catch (err) {
+        res.status(400)
+        next(err);
+    }
+});
+
 
 const PORT = 3333;
 

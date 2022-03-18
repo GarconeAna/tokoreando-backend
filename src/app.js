@@ -13,7 +13,7 @@ const User = require('./model/User');
 
 
 const cors = require('cors');
-const { append } = require('express/lib/response');
+const { append, send } = require('express/lib/response');
 const bcrypt = require('bcryptjs/dist/bcrypt');
 
 
@@ -42,10 +42,6 @@ app.use((error, req, res, next) => {
         message: error.message,
         stack: process.env.NODE_ENV === "production" ? "ok": error.stack
     });
-});
-
-app.get('/', (req, res) => {
-    res.send('Helloooooo!!!!!');
 });
 
 app.post("/register", async (req, res, next) => {
@@ -77,6 +73,25 @@ app.post("/register", async (req, res, next) => {
         });
     } catch (err) {
         res.status(400)
+        next(err);
+    }
+});
+
+app.post("/login", async (req, res, next) => {
+    try {
+        const { username, password } = req.body;
+
+        const user = await User.findOne({ username });
+
+        if (!user) return res.status(400).send({error: "Username not found."});
+
+        const validPassword = await bcrypt.compare(password, user.password);
+
+        if (!validPassword) return res.status(400).send({error: "Invalid password."});
+
+        res.send({message: "User logged in."});
+    } catch (err) {
+        res.status(400);
         next(err);
     }
 });

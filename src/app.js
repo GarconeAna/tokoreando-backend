@@ -14,6 +14,7 @@ const User = require('./model/User');
 
 const cors = require('cors');
 const { append } = require('express/lib/response');
+const bcrypt = require('bcryptjs/dist/bcrypt');
 
 
 mongoose
@@ -51,6 +52,9 @@ app.post("/register", async (req, res, next) => {
     try {
         const { username, password } = req.body;
 
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+
         console.log(username);
         console.log(password);
         
@@ -62,7 +66,7 @@ app.post("/register", async (req, res, next) => {
 
         const user = await User.create({
             username,
-            password
+            password: hash
         })
 
         console.log(user);

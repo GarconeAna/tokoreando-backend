@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const authenticate = require('./auth');
 const User = require('./model/User');
 const Post = require('./model/Post');
+const res = require('express/lib/response');
 
 const router = new Router();
 
@@ -116,6 +117,49 @@ router.put('/posts/:id', authenticate, async (req, res, next) => {
         res.status(400);
         next(err);
     } 
+});
+
+router.get('/users', authenticate, async (req, res, next) => {
+    try {
+        const users = await User.find({});
+
+        if (!users.length) return res.status(400).send({error: 'Unable to get users.'});
+
+        res.status(200).send(users.map(user => (
+            {
+                _id: user.id,
+                username: user.username
+            }
+        )))
+    } catch (err) {
+        res.status(400);
+        next(err);
+    }
+});
+
+router.get('/posts', authenticate, async (req, res, next) => {
+    try {
+        const posts = await Post.find({});
+        res.status(200).send(posts);
+    } catch (err) {
+        res.status(400);
+        next(err);
+    }
+});
+
+router.get('/posts/:id', authenticate, async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+        const post = await Post.findById(id);
+
+        if (!post) return res.status(400).send({error: 'Post not found'});
+
+        res.status(200).send(post);
+    } catch (err) {
+        res.status(400);
+        next(err);
+    }
 });
 
 

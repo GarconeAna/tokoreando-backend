@@ -5,10 +5,12 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+const jwt = require('jsonwebtoken');
+const authenticate = require('./auth');
 const app = express();
 
 const User = require('./model/User');
-// const Tweet = require('./model/tweet.model');
+const Post = require('./model/Post');
 
 
 
@@ -89,10 +91,26 @@ app.post("/login", async (req, res, next) => {
 
         if (!validPassword) return res.status(400).send({error: "Invalid password."});
 
+        const token = jwt.sign({_id: user.id}, process.env.JWT_SECRET);
+        res.header('auth-token', token).send(token);
+
         res.send({message: "User logged in."});
     } catch (err) {
         res.status(400);
         next(err);
+    }
+});
+
+app.post('/posts', authenticate, async (req, res, next) => {
+    const { content } = req.body;
+
+    try {
+        const post = await Post.create({owner: req.user, content});
+        if(!post) res.status(400).send({error: 'Unable to create post.'});
+        res.status(201).send(post);
+    } catch (err) {
+        res.status(400);
+        send(err);
     }
 });
 

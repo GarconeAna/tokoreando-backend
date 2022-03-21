@@ -12,7 +12,7 @@ const User = new mongoose.Schema({
     },
     tweets: [{
         type: mongoose.Schema.ObjectId,
-        ref: 'Tweet'
+        ref: 'Post'
     }]
 }, {
     timestamps: true

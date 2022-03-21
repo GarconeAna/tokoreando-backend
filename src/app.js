@@ -114,6 +114,48 @@ app.post('/posts', authenticate, async (req, res, next) => {
     }
 });
 
+app.delete('/posts/:id', authenticate, async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+        await Post.findByIdAndDelete(id);
+        res.status(200).send({message: 'Post deleted.'})
+    } catch (err) {
+        res.status(400);
+        next(err);
+    }
+});
+
+app.put('/posts/:id', authenticate, async (req, res, next) => {
+    // encontramos o post pelo parâmetro ID da url
+    const { id } = req.params;
+
+    try {
+        const post = await Post.findById(id);
+
+        if(!post) return res.status(400).send({error: 'Post not found.'});
+
+        // vemos se o post em quetão pertence ao usuário que está logado
+        if (post.owner === req.user._id) return res.status(400).send({error: 'Unable to update post.'});
+
+        // verificar se esta post já foi curtido
+        const postAlreadyLiked = post.likes.some(like => like == req.user._id);
+    
+        if (postAlreadyLiked) {
+            post.likes = post.likes.filter(like => like != req.user._id);
+        } else {
+            post.likes.push(req.user_id);
+        }
+    
+        post.save();
+    
+        res.status(200).send(post);
+    } catch (err) {
+        res.status(400);
+        next(err);
+    } 
+});
+
 
 const PORT = 3333;
 
